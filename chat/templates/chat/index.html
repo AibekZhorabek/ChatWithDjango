@@ -1,0 +1,206 @@
+{% extends 'chat/layout.html' %}
+
+{% block title %}
+    Чат
+{% endblock %}
+
+{% block content %}
+    <div class="mt-5">
+        <div class="row">
+            <div class="col-8 offset-2">
+                <div class="card" style="box-shadow:
+  0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+  0 6.7px 5.3px rgba(0, 0, 0, 0.048),
+  0 12.5px 10px rgba(0, 0, 0, 0.06),
+  0 22.3px 17.9px rgba(0, 0, 0, 0.072),
+  0 41.8px 33.4px rgba(0, 0, 0, 0.086),
+  0 100px 80px rgba(0, 0, 0, 0.12)">
+                    <div class="card-header">
+                        {{ message_title }}
+                    </div>
+                    <div class="card-body" style="height: 400px; overflow: auto">
+                        <div class="" id="user_full_name">
+
+                        </div>
+                    </div>
+                    <div class="card-footer" style="background-color: #6DDCBD">
+                        <div class="row">
+                            <div class="col-12 d-flex">
+                                <button class="btn btn-outline"><i class="fas fa-paperclip mt-2 mr-1"></i></button>
+                                <form id="form_msg" method="post">
+                                    {% csrf_token %}
+                                    <div class="d-flex">
+                                        <input class="form-control" type="text"
+                                                  name="message_text" id="message_text"/>
+                                        <button type="button" class=" ml-1 btn btn-primary" onclick="msg_sender()">
+                                            Send>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $('#message_text').keypress(function (event) {
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == '13') {
+                msg_sender();
+                event.preventDefault();
+            }
+        });
+
+        function msg_sender() {
+            console.log('ewr');
+            var url = "{% url 'msg_send' message_title.id request.user.id %}";
+            if ($("#message_text").val().trim().length > 0) {
+                $.post({
+                    url: url,
+                    data: $("#form_msg").serialize(),
+                    success: function (data) {
+
+                        console.log(data)
+                        var pay = $('#user_full_name')
+                        pay.html('')
+                        pay.append('')
+
+                        for (var i = 0; i < data.message.length; i++) {
+                            if (data.message[i].user !== data.user_id) {
+
+                                pay.append('<div class="row">' +
+                                    '<div class="col-8"> ' +
+                                    '<div class="row"> ' +
+                                    '<div class="ml-1" style="width: 10%;"> ' +
+                                    '<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg"' +
+                                    'style="width: 50px; height: 50px; border-radius: 50%"> ' +
+                                    '</div> ' +
+                                    '<div class="col-10"> ' +
+                                    '<h6>' + data.message[i].user__first_name + ' ' + data.message[i].user__last_name + '</h6> ' +
+                                    '<p class="box sb1">' + data.message[i].message_text +
+                                    '</p> ' +
+                                    '<p>' + data.message[i].date +
+                                    '</p>' +
+                                    '</div> ' +
+                                    '</div> ' +
+                                    '</div> ' +
+                                    '</div>')
+                            } else {
+                                pay.append('<div class="row">' +
+                                    '<div class="col-4"></div>\n' +
+                                    '<div class="col-8 d-flex">\n' +
+                                    '<div class="col-10">\n' +
+                                    '<div class="float-right">\n' +
+                                    '<h6 class="float-right"><div id="user_full_name">' + data.message[i].user__first_name + ' ' + data.message[i].user__last_name + '</div></h6>\n' +
+                                    '<br>\n' +
+                                    '<div class="box3" id="message_div">\n' + data.message[i].message_text +
+                                    '</div>\n' +
+                                    '<p>' + data.message[i].date +
+                                    '</p>' +
+                                    '</div>\n' +
+                                    '</div>\n' +
+                                    '<div class="ml-1" style="width: 10%;">\n' +
+                                    '<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg"\n' +
+                                    'style="width: 50px; height: 50px; border-radius: 50%">\n' +
+                                    '</div>\n' +
+                                    '</div>\n' +
+                                    '</div>')
+                            }
+                            $('#baton').prop('disabled', true);
+                        }
+
+                    },
+                    error: function (data) {
+                        alert("Введите текст нормально!")
+                    }
+                });
+            }
+            $('#message_text').val('');
+        }
+
+        function get_msg_sender() {
+            console.log('ewr');
+            var url = "{% url 'msg_send' message_title.id request.user.id %}";
+
+            $.get({
+                url: url,
+                data: $("#form_msg").serialize(),
+                success: function (data) {
+
+                    console.log(data);
+                    var pay = $('#user_full_name');
+                    pay.html('');
+                    pay.append('');
+                    for (var i = 0; i < data.message.length; i++) {
+                        console.log(data.message[i].user.id);
+                        console.log(data.user_id[i]);
+                        if (data.message[i].user !== data.user_id) {
+                            pay.append('<div class="row">' +
+                                '<div class="col-8"> ' +
+                                '<div class="row"> ' +
+                                '<div class="ml-1" style="width: 10%;"> ' +
+                                '<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg"' +
+                                'style="width: 50px; height: 50px; border-radius: 50%"> ' +
+                                '</div> ' +
+                                '<div class="col-10"> ' +
+                                '<h6>' + data.message[i].user__first_name + ' ' + data.message[i].user__last_name + '</h6> ' +
+                                '<p class="box sb1">' + data.message[i].message_text +
+                                    '<p>' + data.message[i].date +
+                                '</p>' +
+                                '</p> ' +
+                                '</div> ' +
+                                '</div> ' +
+                                '</div> ' +
+                                '</div>')
+                        } else {
+                            pay.append('<div class="row">' +
+                                '<div class="col-4"></div>\n' +
+                                '<div class="col-8 d-flex">\n' +
+                                '<div class="col-10">\n' +
+                                '<div class="float-right">\n' +
+                                '<h6 class="float-right"><div id="user_full_name">' + data.message[i].user__first_name + ' ' + data.message[i].user__last_name + '</div></h6>\n' +
+                                '<br>\n' +
+                                '<div class="box3" id="message_div">\n' + data.message[i].message_text +
+                                '</div>\n' +
+                                    '<p>' + data.message[i].date +
+                                '</p>' +
+                                '</div>\n' +
+                                '</div>\n' +
+                                '<div class="ml-1" style="width: 10%;">\n' +
+                                '<img src="https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg"\n' +
+                                'style="width: 50px; height: 50px; border-radius: 50%">\n' +
+                                '</div>\n' +
+                                '</div>\n' +
+                                '</div>')
+                        }
+                    }
+
+
+                },
+                error: function (data) {
+                    {#alert("Введите текст нормально 667!")#}
+                }
+            });
+            {#$('#message_text').val('');#}
+        }
+
+
+        $(document).ready(function () {
+            get_msg_sender();
+            {setInterval(get_msg_sender, 1000);}
+
+            var buttonDisabled = false;
+            $('#baton').prop('disabled', true);
+            $("#message_text").on('keyup', function () {
+                if ($(this).val() == '') {
+                    $('#baton').prop('disabled', true);
+                }else if($(this).val() != ''){
+                    $('#baton').prop('disabled', buttonDisabled);
+                }
+            })
+        });
+    </script>
+{% endblock %}
